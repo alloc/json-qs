@@ -101,6 +101,8 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
                 `Unexpected end of string at position ${pos}`
               )
             }
+
+          // ^ passthrough
           case CharCode.Colon:
           case CharCode.Comma:
             open = false
@@ -109,6 +111,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
           case CharCode.Escape:
             pos += 1 // Skip the escape and append the next character.
 
+          // ^ passthrough
           default:
             result += input[pos]
             pos += 1
@@ -194,6 +197,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
           case CharCode.Escape:
             pos += 1 // Skip the escape and append the next character.
 
+          // ^ passthrough
           default:
             key += input[pos]
         }

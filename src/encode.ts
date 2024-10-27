@@ -135,11 +135,13 @@ function encodeCharacter(char: string): string {
   switch (charCode) {
     case CharCode.Space:
       return '+'
+
     case CharCode.Hash:
     case CharCode.Percent:
     case CharCode.Ampersand:
     case CharCode.Plus:
       return encodeURIComponent(char)
+
     case CharCode.OpenParen:
     case CharCode.CloseParen:
     case CharCode.Comma:
