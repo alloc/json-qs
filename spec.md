@@ -64,7 +64,7 @@ A property name of `__proto__` is forbidden.
 
 #### Empty objects
 
-An empty object is encoded as `{}`.
+An empty object is encoded as `{}`, unless it's the root object, in which case it's encoded as nothing.
 
 #### Object coercion
 
