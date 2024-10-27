@@ -21,6 +21,12 @@ The `json-qs` approach is to keep query strings human-readable (unlike many othe
 
 See the [specification](./spec.md) for more details or the [test cases](./test/cases.ts) for examples.
 
+### Install
+
+```sh
+pnpm add @json-qs/json-qs
+```
+
 ### Encoding
 
 ```ts
