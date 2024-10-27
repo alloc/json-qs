@@ -1,4 +1,5 @@
 import { isArray } from 'radashi'
+import { CharCode } from './charCode.js'
 import { CodableObject, CodableValue } from './types.js'
 
 export type EncodeOptions = {
@@ -106,13 +107,15 @@ function encodeObject(obj: CodableObject): string {
 }
 
 function isNumberLike(charCode: number): boolean {
-  // digit or minus sign
-  return (charCode >= 48 && charCode <= 57) || charCode === 45
+  return (
+    (charCode >= CharCode.DigitMin && charCode <= CharCode.DigitMax) ||
+    charCode === CharCode.Minus
+  )
 }
 
 function encodeString(str: string, escape?: boolean): string {
   // Regardless of the escape flag, we always escape backslashes.
-  let result = escape || str.charCodeAt(0) === 92 ? '\\' : ''
+  let result = escape || str.charCodeAt(0) === CharCode.Escape ? '\\' : ''
   for (const char of str) {
     // By using `for..of`, we may receive a multi-code unit character.
     // These are never encoded, since the HTTP client handles it
@@ -124,25 +127,25 @@ function encodeString(str: string, escape?: boolean): string {
 
 function encodeCharacter(char: string): string {
   const charCode = char.charCodeAt(0)
-  if (charCode > 127) {
+  if (charCode > CharCode.LastAscii) {
     // Non-ASCII characters are never encoded, since the HTTP client
     // handles it automatically.
     return char
   }
   switch (charCode) {
-    case 32: // space
+    case CharCode.Space:
       return '+'
-    case 35: // hash
-    case 37: // percent
-    case 38: // ampersand
-    case 43: // plus
+    case CharCode.Hash:
+    case CharCode.Percent:
+    case CharCode.Ampersand:
+    case CharCode.Plus:
       return encodeURIComponent(char)
-    case 40: // opening parenthesis
-    case 41: // closing parenthesis
-    case 44: // comma
-    case 58: // colon
-    case 123: // opening curly bracket
-    case 125: // closing curly bracket
+    case CharCode.OpenParen:
+    case CharCode.CloseParen:
+    case CharCode.Comma:
+    case CharCode.Colon:
+    case CharCode.OpenCurly:
+    case CharCode.CloseCurly:
       return '\\' + char
   }
   return char

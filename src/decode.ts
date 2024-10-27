@@ -1,3 +1,4 @@
+import { CharCode } from './charCode.js'
 import { CodableObject, CodableValue } from './types.js'
 
 type URLSearchParams = typeof globalThis extends {
@@ -33,21 +34,6 @@ const enum ValueMode {
   String,
 }
 
-const toCharCode = (c: string) => c.charCodeAt(0)
-
-const QUOTE = toCharCode("'"),
-  OPEN_PAREN = toCharCode('('),
-  CLOSE_PAREN = toCharCode(')'),
-  OPEN_CURLY = toCharCode('{'),
-  CLOSE_CURLY = toCharCode('}'),
-  DIGIT_MIN = toCharCode('0'),
-  DIGIT_MAX = toCharCode('9'),
-  MINUS = toCharCode('-'),
-  COMMA = toCharCode(','),
-  COLON = toCharCode(':'),
-  LOWER_N = toCharCode('n'),
-  ESCAPE = toCharCode('\\')
-
 const constantsMap: Record<string, CodableValue> = {
   null: null,
   false: false,
@@ -67,30 +53,30 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
 
   // Try to deduce the value type.
   switch (charCode) {
-    case QUOTE:
+    case CharCode.Quote:
       mode = ValueMode.String
       break
 
-    case OPEN_PAREN:
+    case CharCode.OpenParen:
       mode = ValueMode.Array
       break
 
-    case OPEN_CURLY:
+    case CharCode.OpenCurly:
       mode = ValueMode.Object
       break
 
-    case MINUS:
+    case CharCode.Minus:
       mode = ValueMode.NumberOrBigint
       break
 
     default:
-      if (charCode >= DIGIT_MIN && charCode <= DIGIT_MAX) {
+      if (charCode >= CharCode.DigitMin && charCode <= CharCode.DigitMax) {
         mode = ValueMode.NumberOrBigint
       } else {
         endPos = nested ? findEndPos(input, pos) : input.length
 
         // Check for a constant.
-        if (charCode !== ESCAPE && endPos > pos && endPos - pos <= 5) {
+        if (charCode !== CharCode.Escape && endPos > pos && endPos - pos <= 5) {
           result = constantsMap[input.slice(pos, endPos)]
           if (result !== undefined) {
             cursor.pos = endPos
@@ -108,19 +94,19 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
       let open = true
       while (open && pos < input.length) {
         switch (input.charCodeAt(pos)) {
-          case CLOSE_CURLY:
-          case CLOSE_PAREN:
+          case CharCode.CloseCurly:
+          case CharCode.CloseParen:
             if (!result) {
               throw new SyntaxError(
                 `Unexpected end of string at position ${pos}`
               )
             }
-          case COLON:
-          case COMMA:
+          case CharCode.Colon:
+          case CharCode.Comma:
             open = false
             break
 
-          case ESCAPE:
+          case CharCode.Escape:
             pos += 1 // Skip the escape and append the next character.
 
           default:
@@ -133,7 +119,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
 
     case ValueMode.NumberOrBigint: {
       pos = nested ? findEndPos(input, pos + 1) : input.length
-      if (input.charCodeAt(pos - 1) === LOWER_N) {
+      if (input.charCodeAt(pos - 1) === CharCode.LowerN) {
         result = BigInt(input.slice(startPos, pos - 1))
       } else {
         result = Number(input.slice(startPos, pos))
@@ -150,9 +136,9 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
       while (++pos < input.length) {
         charCode = input.charCodeAt(pos)
 
-        if (charCode === COMMA) {
+        if (charCode === CharCode.Comma) {
           array.push('')
-        } else if (charCode === CLOSE_PAREN) {
+        } else if (charCode === CharCode.CloseParen) {
           pos += 2
           result = array
           break
@@ -161,7 +147,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
           array.push(decodeValue(input, cursor))
           pos = cursor.pos
 
-          if (input.charCodeAt(pos) === CLOSE_PAREN) {
+          if (input.charCodeAt(pos) === CharCode.CloseParen) {
             pos += 1
             result = array
             break
@@ -179,7 +165,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
         charCode = input.charCodeAt(pos)
 
         // Colon marks the end of a key and the beginning of a value.
-        if (charCode === COLON) {
+        if (charCode === CharCode.Colon) {
           cursor.pos = pos + 1
           result[key] = decodeValue(input, cursor)
           pos = cursor.pos
@@ -187,13 +173,13 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
 
           // Skip past the comma that ended the value.
           charCode = input.charCodeAt(pos)
-          if (charCode === COMMA) {
+          if (charCode === CharCode.Comma) {
             continue
           }
         }
 
         switch (charCode) {
-          case CLOSE_CURLY:
+          case CharCode.CloseCurly:
             if (key.length) {
               throw new SyntaxError(`Unterminated key at position ${pos}`)
             }
@@ -201,11 +187,11 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
             pos += 1
             break
 
-          case COMMA:
+          case CharCode.Comma:
             result[key] = key = ''
             break
 
-          case ESCAPE:
+          case CharCode.Escape:
             pos += 1 // Skip the escape and append the next character.
 
           default:
@@ -234,9 +220,9 @@ function findEndPos(input: string, startPos: number) {
   for (let pos = startPos; pos < input.length; pos++) {
     const charCode = input.charCodeAt(pos)
     if (
-      charCode === COMMA ||
-      charCode === CLOSE_PAREN ||
-      charCode === CLOSE_CURLY
+      charCode === CharCode.Comma ||
+      charCode === CharCode.CloseParen ||
+      charCode === CharCode.CloseCurly
     ) {
       return pos
     }
