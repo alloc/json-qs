@@ -164,7 +164,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
     }
 
     case ValueMode.Object: {
-      result = {} as CodableObject
+      const object: CodableObject = {}
       let key = ''
       let keyPos = pos + 1
       let open = true
@@ -177,7 +177,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
             throw new SyntaxError(`Forbidden key at position ${keyPos}`)
           }
           cursor.pos = pos + 1
-          result[key] = decodeValue(input, cursor)
+          object[key] = decodeValue(input, cursor)
           pos = cursor.pos
           key = ''
 
@@ -194,6 +194,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
             if (key.length) {
               throw new SyntaxError(`Unterminated key at position ${pos}`)
             }
+            result = object
             open = false
             pos += 1
             break
