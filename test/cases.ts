@@ -182,6 +182,10 @@ export const cases: Record<string, Case | Case[]> = {
       encoded: 'a=({b:({c:1})})',
     },
   ],
+  'object with string values': {
+    decoded: { a: { b: 'c', d: 'e' }, f: { g: { h: 'i', j: 'k' } } },
+    encoded: 'a={b:c,d:e}&f={g:{h:i,j:k}}',
+  },
   'empty arrays': {
     decoded: { a: [] },
     encoded: 'a=()',
