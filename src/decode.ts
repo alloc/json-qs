@@ -1,4 +1,4 @@
-import { CharCode } from './charCode.js'
+import { CharCode, isDigit } from './charCode.js'
 import { CodableObject, CodableValue } from './types.js'
 
 type URLSearchParams = typeof globalThis extends {
@@ -69,11 +69,13 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
       break
 
     case CharCode.Minus:
-      mode = ValueMode.NumberOrBigint
+      mode = isDigit(input.charCodeAt(pos + 1))
+        ? ValueMode.NumberOrBigint
+        : ValueMode.String
       break
 
     default:
-      if (charCode >= CharCode.DigitMin && charCode <= CharCode.DigitMax) {
+      if (isDigit(charCode)) {
         mode = ValueMode.NumberOrBigint
       } else {
         endPos = nested ? findEndPos(input, pos) : input.length

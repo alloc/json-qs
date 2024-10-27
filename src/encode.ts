@@ -1,5 +1,5 @@
 import { isArray } from 'radashi'
-import { CharCode } from './charCode.js'
+import { CharCode, isDigit } from './charCode.js'
 import { CodableObject, CodableValue } from './types.js'
 
 export type EncodeOptions = {
@@ -66,7 +66,7 @@ function encodeValue(value: CodableValue): string {
     }
     // For string values, escape the first character if it's a digit or
     // minus sign, since those are used to detect a number value.
-    return encodeString(value, isNumberLike(value.charCodeAt(0)))
+    return encodeString(value, isNumberLike(value))
   }
   if (typeof value === 'number') {
     if (Number.isNaN(value) || !Number.isFinite(value)) {
@@ -84,6 +84,14 @@ function encodeValue(value: CodableValue): string {
     return String(value) + 'n'
   }
   throw new Error(`Unsupported value type: ${typeof value}`)
+}
+
+function isNumberLike(value: string): boolean {
+  const charCode = value.charCodeAt(0)
+  return (
+    isDigit(charCode) ||
+    (charCode === CharCode.Minus && isDigit(value.charCodeAt(1)))
+  )
 }
 
 function encodeArray(array: readonly CodableValue[]): string {
@@ -104,13 +112,6 @@ function encodeArray(array: readonly CodableValue[]): string {
 
 function encodeObject(obj: CodableObject): string {
   return `{${encodeProperties(obj, true)}}`
-}
-
-function isNumberLike(charCode: number): boolean {
-  return (
-    (charCode >= CharCode.DigitMin && charCode <= CharCode.DigitMax) ||
-    charCode === CharCode.Minus
-  )
 }
 
 function encodeString(str: string, escape?: boolean): string {

@@ -141,6 +141,10 @@ export const cases: Record<string, Case | Case[]> = {
       encoded: 'a=+\\(\\)\\{\\}\\:\\,+',
     },
   ],
+  'string that starts with minus sign but is not a number': {
+    decoded: { sort: '-title' },
+    encoded: 'sort=-title',
+  },
   'non-ASCII characters': [
     {
       decoded: { a: '💩' },

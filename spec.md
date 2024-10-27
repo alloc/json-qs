@@ -98,7 +98,7 @@ For example, these characters are _always_ escaped with a backslash (`\`):
 And these characters are escaped if they're the first character, since they would otherwise imply another data type:
 
 - digits (if not escaped, implies a number)
-- hyphens (if not escaped, implies a negative number)
+- hyphens, but only if followed by a digit (if not escaped, implies a negative number)
 - backslashes (if not escaped, implies an escape sequence)
 
 The following object…

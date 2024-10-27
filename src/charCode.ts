@@ -18,3 +18,7 @@ export const enum CharCode {
   Quote = 39, // '
   Space = 32,
 }
+
+export function isDigit(charCode: number): boolean {
+  return charCode >= CharCode.DigitMin && charCode <= CharCode.DigitMax
+}
