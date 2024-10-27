@@ -11,7 +11,7 @@ A query string encoder and decoder with full JSON compatibility, no wasteful rep
 
 #### Why make this?
 
-The standard for query strings is unfriendly to JSON objects and arrays, or at best, overly verbose with repeated keys. Also, backend developers are required to manually decode the string values into their intended types.
+The status quo for query strings is unfriendly to JSON objects and arrays, or at best, overly verbose with repeated keys. Also, backend developers are required to manually decode the string values into their intended types.
 
 Okay, so why not avoid query strings for complex data, and just POST some JSON instead? Network-level caching of POST requests is not possible, so you'd need to implement your own application-level caching. By using GET with a query string, you can leverage the browser's built-in caching mechanism, as well as edge caching.
 
