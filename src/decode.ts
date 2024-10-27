@@ -199,10 +199,6 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
             pos += 1
             break
 
-          case CharCode.Comma:
-            result[key] = key = ''
-            break
-
           case CharCode.Escape:
             pos += 1 // Skip the escape and append the next character.
 
