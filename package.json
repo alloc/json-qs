@@ -21,7 +21,8 @@
   "scripts": {
     "dev": "rimraf dist && tsup --sourcemap --watch",
     "build": "rimraf dist && tsup",
-    "lint": "tsc -p . --outDir node_modules/.tmp"
+    "lint": "tsc -p . --outDir node_modules/.tmp",
+    "test": "vitest"
   },
   "devDependencies": {
     "@alloc/prettier-config": "^1.0.0",
