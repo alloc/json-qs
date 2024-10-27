@@ -1,4 +1,6 @@
-export type CodableObject = { [key: string]: CodableValue }
+export type CodableObject = { toJSON(): CodableValue } | CodableRecord
+
+export type CodableRecord = { [key: string]: CodableValue }
 
 export type CodableValue =
   | string

@@ -1,17 +1,37 @@
 import { isArray } from 'radashi'
 import { CharCode, isDigit } from './charCode.js'
-import { CodableObject, CodableValue } from './types.js'
+import { CodableObject, CodableRecord, CodableValue } from './types.js'
 
 export type EncodeOptions = {
   skippedKeys?: string[]
 }
 
 export function encode(obj: CodableObject, options?: EncodeOptions): string {
-  return encodeProperties(obj, false, options?.skippedKeys)
+  return encodeProperties(
+    isRecord(obj) ? obj : assertRecord(obj.toJSON()),
+    false,
+    options?.skippedKeys
+  )
+}
+
+function assertRecord(value: CodableValue): CodableRecord {
+  if (
+    typeof value !== 'object' ||
+    isArray(value) ||
+    value === null ||
+    !isRecord(value)
+  ) {
+    throw new Error('Expected toJSON method to return an object')
+  }
+  return value
+}
+
+function isRecord(value: CodableObject): value is CodableRecord {
+  return typeof value.toJSON !== 'function'
 }
 
 function encodeProperties(
-  obj: CodableObject,
+  obj: CodableRecord,
   nested: boolean,
   skippedKeys?: string[]
 ): string {
@@ -78,7 +98,10 @@ function encodeValue(value: CodableValue): string {
     return encodeArray(value)
   }
   if (typeof value === 'object') {
-    return encodeObject(value)
+    if (isRecord(value)) {
+      return encodeObject(value)
+    }
+    return encodeValue(value.toJSON())
   }
   if (typeof value === 'bigint') {
     return String(value) + 'n'
@@ -110,7 +133,7 @@ function encodeArray(array: readonly CodableValue[]): string {
   return `(${result})`
 }
 
-function encodeObject(obj: CodableObject): string {
+function encodeObject(obj: CodableRecord): string {
   return `{${encodeProperties(obj, true)}}`
 }
 

@@ -12,6 +12,42 @@ describe('json-qs', () => {
       })
     }
 
+    test('object with toJSON method', () => {
+      // Root object
+      expect(
+        encode({
+          ignoredKey: true,
+          toJSON: () => ({ a: 1 }),
+        })
+      ).toBe('a=1')
+
+      // Nested object
+      expect(
+        encode({
+          a: {
+            b: { toJSON: () => 1 },
+          },
+        })
+      ).toBe('a={b:1}')
+
+      // Recursive toJSON calls
+      expect(
+        encode({
+          a: {
+            b: {
+              ignoredKey: true,
+              toJSON: () => ({
+                c: {
+                  ignoredKey: true,
+                  toJSON: () => 1,
+                },
+              }),
+            },
+          },
+        })
+      ).toBe('a={b:{c:1}}')
+    })
+
     test('negative zero (not preserved)', () => {
       expect(encode({ a: -0 })).toBe('a=0')
     })

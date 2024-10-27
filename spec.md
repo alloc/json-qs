@@ -66,6 +66,24 @@ A property name of `__proto__` is forbidden.
 
 An empty object is encoded as `{}`.
 
+#### Object coercion
+
+If an object has a `toJSON` method, it will be invoked and the result will be encoded instead of the object itself. The `toJSON` method may have properties whose values also have `toJSON` methods, and those will be invoked recursively.
+
+```ts
+{
+  a: { ignoredKey: true, toJSON: () => ({ b: 1 }) }
+}
+```
+
+…is encoded into the following query string:
+
+```
+a={b:1}
+```
+
+Note: If the root object has a `toJSON` method, it needs to return an object.
+
 ## Strings
 
 Strings are not wrapped in quotes. If a string would lead to ambiguity, its characters may be escaped with a backslash (`\`) as required.
