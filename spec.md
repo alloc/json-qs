@@ -58,6 +58,10 @@ a={1:2}
 
 We don't quote property names, because it takes more space. Also, neither apostrophes nor double quotes are URI-safe unless percent-encoded (which we try to avoid).
 
+#### Prototype pollution
+
+A property name of `__proto__` is forbidden.
+
 #### Empty objects
 
 An empty object is encoded as `{}`.

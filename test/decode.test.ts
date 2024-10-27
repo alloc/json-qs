@@ -16,8 +16,7 @@ describe('json-qs', () => {
       })
     }
 
-    test('throws on malformed input', () => {
-      const cases = ['a=(', 'a=((', 'a=(b', 'a={b:', 'a={b}', 'a={:}', 'a=1.n']
+    function decodeMany(cases: string[]) {
       const results: any[] = []
       for (const input of cases) {
         try {
@@ -26,7 +25,38 @@ describe('json-qs', () => {
           results.push(error)
         }
       }
-      expect(new Map(zip(cases, results))).toMatchInlineSnapshot(`
+      return new Map(zip(cases, results))
+    }
+
+    test('throws on prototype pollution', () => {
+      const results = decodeMany([
+        '__proto__=1',
+        'a={__proto__:1}',
+        'a={\\__proto__:1}',
+        'a={b:1,__proto__:{isAdmin:true}}',
+      ])
+      expect(results).toMatchInlineSnapshot(`
+        Map {
+          "__proto__=1" => [SyntaxError: Failed to decode value for '__proto__' key: Forbidden key],
+          "a={__proto__:1}" => [SyntaxError: Failed to decode value for 'a' key: Forbidden key at position 1],
+          "a={\\__proto__:1}" => [SyntaxError: Failed to decode value for 'a' key: Forbidden key at position 1],
+          "a={b:1,__proto__:{isAdmin:true}}" => [SyntaxError: Failed to decode value for 'a' key: Forbidden key at position 5],
+        }
+      `)
+    })
+
+    test('throws on malformed input', () => {
+      const results = decodeMany([
+        'a=(',
+        'a=((',
+        'a=(b',
+        'a={b:',
+        'a={b}',
+        'a={:}',
+        'a=1.n',
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
         Map {
           "a=(" => [SyntaxError: Failed to decode value for 'a' key: Unterminated input from position 0],
           "a=((" => [SyntaxError: Failed to decode value for 'a' key: Unterminated input from position 1],

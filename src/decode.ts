@@ -15,6 +15,9 @@ export function decode(input: URLSearchParams): CodableObject {
   let key: string | undefined
   try {
     for (key of input.keys()) {
+      if (key === '__proto__') {
+        throw new SyntaxError('Forbidden key')
+      }
       result[key] = decodeValue(input.get(key)!)
     }
   } catch (error: any) {
@@ -163,12 +166,16 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
     case ValueMode.Object: {
       result = {} as CodableObject
       let key = ''
+      let keyPos = pos + 1
       let open = true
       while (open && ++pos < input.length) {
         charCode = input.charCodeAt(pos)
 
         // Colon marks the end of a key and the beginning of a value.
         if (charCode === CharCode.Colon) {
+          if (key === '__proto__') {
+            throw new SyntaxError(`Forbidden key at position ${keyPos}`)
+          }
           cursor.pos = pos + 1
           result[key] = decodeValue(input, cursor)
           pos = cursor.pos
@@ -177,6 +184,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
           // Skip past the comma that ended the value.
           charCode = input.charCodeAt(pos)
           if (charCode === CharCode.Comma) {
+            keyPos = pos + 1
             continue
           }
         }
