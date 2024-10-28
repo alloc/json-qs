@@ -257,4 +257,22 @@ export const cases: Record<string, Case | Case[]> = {
     encoded:
       "metadata=null&user={name:John's+%26+Jane's,preferences:{notifications:true,theme:dark},scores:(100,95)}",
   },
+  'elasticsearch query': {
+    decoded: {
+      query: {
+        bool: {
+          must: [
+            { match: { title: 'Search' } },
+            { match: { content: 'Elasticsearch' } },
+          ],
+          filter: [
+            { term: { status: 'published' } },
+            { range: { publish_date: { gte: '2015-01-01' } } },
+          ],
+        },
+      },
+    },
+    encoded:
+      'query={bool:{filter:({term:{status:published}},{range:{publish_date:{gte:\\2015-01-01}}}),must:({match:{title:Search}},{match:{content:Elasticsearch}})}}',
+  },
 }
