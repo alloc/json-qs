@@ -227,6 +227,38 @@ The following object…
 a=9007199254740992n
 ```
 
+## Dates
+
+Dates are stringified to their ISO 8601 string representation. If a date is at midnight UTC, the time component is omitted. If the year exceeds 9999, there may exist a `+` prefix, which needs to be percent-encoded.
+
+The following objects…
+
+```js
+{
+  a: new Date('2024-10-27T00:00:00.000Z')
+}
+
+{
+  b: new Date('2024-10-27T12:34:56.789Z')
+}
+
+{
+  c: new Date('+10000-01-01T00:00:00.000Z')
+}
+```
+
+…are encoded into the following query strings:
+
+```
+a=2024-10-27
+
+b=2024-10-27T12:34:56.789Z
+
+c=%2B010000-01-01
+```
+
+Unlike in strings, colons are not escaped in dates, since they're unlikely to be misread as a property name separator when judged at a glance.
+
 ## Everything Else
 
 The remaining JSON types are merely stringified:

@@ -55,6 +55,7 @@ describe('json-qs', () => {
         'a={b}',
         'a={:}',
         'a=1.n',
+        'a=2024-31-01',
       ])
 
       expect(results).toMatchInlineSnapshot(`
@@ -67,6 +68,7 @@ describe('json-qs', () => {
           "a={b}" => [SyntaxError: Failed to decode value for 'a' key: Unterminated key at position 2],
           "a={:}" => [SyntaxError: Failed to decode value for 'a' key: Unexpected end of string at position 2],
           "a=1.n" => [SyntaxError: Failed to decode value for 'a' key: Cannot convert 1. to a BigInt],
+          "a=2024-31-01" => [SyntaxError: Failed to decode value for 'a' key: Invalid number or date at position 0],
         }
       `)
     })

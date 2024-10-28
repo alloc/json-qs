@@ -133,6 +133,10 @@ export const cases: Record<string, Case | Case[]> = {
       encoded: 'a=\\-123',
     },
     {
+      decoded: { a: '+123' },
+      encoded: 'a=\\%2B123',
+    },
+    {
       decoded: { a: '\\' },
       encoded: 'a=\\\\',
     },
@@ -242,6 +246,24 @@ export const cases: Record<string, Case | Case[]> = {
     decoded: { null: null },
     encoded: 'null=null',
   },
+  dates: [
+    {
+      decoded: { a: new Date('2024-10-27') },
+      encoded: 'a=2024-10-27',
+    },
+    {
+      decoded: { a: new Date('2024-10-27T12:34:56.789Z') },
+      encoded: 'a=2024-10-27T12:34:56.789Z',
+    },
+    {
+      decoded: { a: new Date('+100000-01-01T00:00:00.000Z') },
+      encoded: 'a=%2B100000-01-01',
+    },
+    {
+      decoded: { a: new Date('-100000-01-01T00:00:00.000Z') },
+      encoded: 'a=-100000-01-01',
+    },
+  ],
   'complex nested structures': {
     decoded: {
       user: {

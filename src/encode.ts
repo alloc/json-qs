@@ -1,4 +1,4 @@
-import { isArray } from 'radashi'
+import { isArray, isDate } from 'radashi'
 import { CharCode, isDigit } from './charCode.js'
 import { CodableObject, CodableRecord, CodableValue } from './types.js'
 
@@ -98,6 +98,23 @@ function encodeValue(value: CodableValue): string {
     return encodeArray(value)
   }
   if (typeof value === 'object') {
+    if (isDate(value)) {
+      let iso = value.toISOString()
+      // Remove the time component if it's midnight UTC.
+      if (
+        value.getUTCHours() === 0 &&
+        value.getUTCMinutes() === 0 &&
+        value.getUTCSeconds() === 0 &&
+        value.getUTCMilliseconds() === 0
+      ) {
+        iso = iso.slice(0, -14)
+      }
+      // We also need to encode the '+' sign, if present.
+      if (iso.charCodeAt(0) === CharCode.Plus) {
+        return '%2B' + iso.slice(1)
+      }
+      return iso
+    }
     if (isRecord(value)) {
       return encodeObject(value)
     }
@@ -113,7 +130,8 @@ function isNumberLike(value: string): boolean {
   const charCode = value.charCodeAt(0)
   return (
     isDigit(charCode) ||
-    (charCode === CharCode.Minus && isDigit(value.charCodeAt(1)))
+    ((charCode === CharCode.Minus || charCode === CharCode.Plus) &&
+      isDigit(value.charCodeAt(1)))
   )
 }
 

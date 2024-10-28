@@ -33,7 +33,7 @@ const enum ValueMode {
   Unknown,
   Array,
   Object,
-  NumberOrBigint,
+  Numeric,
   String,
 }
 
@@ -68,15 +68,16 @@ function decodeValue(input: string, cursor = { pos: 0 }): DecodedValue {
       mode = ValueMode.Object
       break
 
+    case CharCode.Plus:
     case CharCode.Minus:
       mode = isDigit(input.charCodeAt(pos + 1))
-        ? ValueMode.NumberOrBigint
+        ? ValueMode.Numeric
         : ValueMode.String
       break
 
     default:
       if (isDigit(charCode)) {
-        mode = ValueMode.NumberOrBigint
+        mode = ValueMode.Numeric
       } else {
         endPos = nested ? findEndPos(input, pos) : input.length
 
@@ -125,14 +126,20 @@ function decodeValue(input: string, cursor = { pos: 0 }): DecodedValue {
       break
     }
 
-    case ValueMode.NumberOrBigint: {
+    case ValueMode.Numeric: {
       pos = nested ? findEndPos(input, pos + 1) : input.length
       if (input.charCodeAt(pos - 1) === CharCode.LowerN) {
         result = BigInt(input.slice(startPos, pos - 1))
       } else {
-        result = Number(input.slice(startPos, pos))
+        const slice = input.slice(startPos, pos)
+        result = Number(slice)
         if (Number.isNaN(result)) {
-          throw new SyntaxError(`Invalid number at position ${startPos}`)
+          result = new Date(slice)
+          if (Number.isNaN(result.getTime())) {
+            throw new SyntaxError(
+              `Invalid number or date at position ${startPos}`
+            )
+          }
         }
       }
       break
