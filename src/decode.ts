@@ -1,5 +1,5 @@
 import { CharCode, isDigit } from './charCode.js'
-import { CodableObject, CodableValue } from './types.js'
+import { DecodedObject, DecodedValue } from './types.js'
 
 type URLSearchParams = typeof globalThis extends {
   URLSearchParams: infer T extends abstract new (...args: any) => any
@@ -10,8 +10,8 @@ type URLSearchParams = typeof globalThis extends {
       get(key: string): string | null
     }
 
-export function decode(input: URLSearchParams): CodableObject {
-  const result: CodableObject = {}
+export function decode(input: URLSearchParams): DecodedObject {
+  const result: DecodedObject = {}
   let key: string | undefined
   try {
     for (key of input.keys()) {
@@ -37,18 +37,18 @@ const enum ValueMode {
   String,
 }
 
-const constantsMap: Record<string, CodableValue> = {
+const constantsMap: Record<string, DecodedValue> = {
   null: null,
   false: false,
   true: true,
 }
 
-function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
+function decodeValue(input: string, cursor = { pos: 0 }): DecodedValue {
   const startPos = cursor.pos
   const nested = startPos > 0
 
   let mode: number = ValueMode.Unknown
-  let result: CodableValue
+  let result: DecodedValue | undefined
 
   let pos = startPos
   let charCode = input.charCodeAt(pos)
@@ -139,7 +139,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
     }
 
     case ValueMode.Array: {
-      const array: CodableValue[] = []
+      const array: DecodedValue[] = []
 
       while (++pos < input.length) {
         charCode = input.charCodeAt(pos)
@@ -166,7 +166,7 @@ function decodeValue(input: string, cursor = { pos: 0 }): CodableValue {
     }
 
     case ValueMode.Object: {
-      const object: CodableObject = {}
+      const object: DecodedObject = {}
       let key = ''
       let keyPos = pos + 1
       let open = true
